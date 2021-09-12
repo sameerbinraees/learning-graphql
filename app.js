@@ -1,10 +1,23 @@
+require('dotenv').config();
 const express = require('express');
+const mongoose = require('mongoose');
+
 const app = express();
 const { graphqlHTTP } = require('express-graphql');
 const { buildSchema } = require('graphql');
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+const URI = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@graphql-learning.sby7e.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority`;
+
+(async () => {
+  try {
+    mongoose.connect(URI);
+    console.log(`DB connected`);
+  } catch (err) {
+    console.log(error);
+  }
+})();
 
 app.get('/', (req, res) => {
   res.send('Yup, Working');
