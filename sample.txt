@@ -1,0 +1,15 @@
+mutation {
+  createEvent(eventInput: { title: "title", description: "description", price: 9.99, date: "121212" }) {
+    _id
+  }
+}
+
+query {
+  events {
+    _id
+    title
+    description
+    price
+    date
+  }
+}

@@ -1,10 +1,11 @@
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
-
-const app = express();
 const { graphqlHTTP } = require('express-graphql');
 const { buildSchema } = require('graphql');
+
+const Event = require('./models/event');
+const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -22,14 +23,14 @@ const URI = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@gra
 app.get('/', (req, res) => {
   res.send('Yup, Working');
 });
-const events = [];
+
 app.use(
   '/graphql',
   graphqlHTTP({
     schema: buildSchema(`
 
       type Event {
-        _id: ID!
+        _id: String!
         title: String!
         description: String!
         price: Float!
@@ -58,19 +59,20 @@ app.use(
 
     `),
     rootValue: {
-      events: () => {
+      events: async () => {
+        const events = await Event.find().exec();
+        console.log(events);
         return events;
       },
-      createEvent: ({ eventInput }) => {
-        const event = {
-          _id: Math.random().toString(),
+      createEvent: async ({ eventInput }) => {
+        const event = new Event({
           title: eventInput.title,
           description: eventInput.description,
           price: +eventInput.price,
           date: new Date().toISOString(),
-        };
-        events.push(event);
-        return event;
+        });
+        const { _doc: createdEvent } = await event.save();
+        return createdEvent;
       },
     },
     graphiql: true,
